@@ -11,7 +11,9 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
-app.use(cors());
+app.use(cors({
+  origin: ['https://rugby-availability-frontend.vercel.app', 'http://localhost:3000']
+}));;
 app.use(express.json());
 
 // Test endpoint
