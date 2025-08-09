@@ -58,3 +58,46 @@ app.post('/api/availability', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
+// Create new player
+app.post('/api/players', async (req, res) => {
+  const { first_name, last_name, email, phone, positions } = req.body;
+  
+  const { data, error } = await supabase
+    .from('Players')
+    .insert([{ first_name, last_name, email, phone, positions }])
+    .select();
+  
+  if (error) return res.status(400).json({ error: error.message });
+  res.json(data[0]);
+});
+
+// Find player by email
+app.get('/api/players/email/:email', async (req, res) => {
+  const { email } = req.params;
+  
+  const { data, error } = await supabase
+    .from('Players')
+    .select('*')
+    .eq('email', email)
+    .single();
+  
+  if (error) return res.status(404).json({ error: 'Player not found' });
+  res.json(data);
+});
+
+// Get availability for a specific match
+app.get('/api/availability/match/:matchId', async (req, res) => {
+  const { matchId } = req.params;
+  
+  const { data, error } = await supabase
+    .from('Availability')
+    .select(`
+      *,
+      Players(first_name, last_name, positions)
+    `)
+    .eq('match_id', matchId);
+  
+  if (error) return res.status(400).json({ error: error.message });
+  res.json(data);
+});
